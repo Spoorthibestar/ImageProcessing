@@ -1,0 +1,59 @@
+import cv2
+import numpy as np
+
+def load_image(path):
+    image = cv2.imread(path)
+    if image is None:
+        print("Error: could not load image")
+        exit()
+    return image
+
+def translate_image(image, tx, ty):
+    rows, cols = image.shape[:2]
+    M = np.float32([[1, 0, tx], [0, 1, ty]])  # Translation matrix
+    translated_image = cv2.warpAffine(image, M, (cols, rows))
+    return translated_image
+
+def rotate_image(image, angle, scale=1.0):
+    rows, cols = image.shape[:2]
+    M = cv2.getRotationMatrix2D((cols / 2, rows / 2), angle, scale)  # Rotation matrix with scale
+    rotated_image = cv2.warpAffine(image, M, (cols, rows))
+    return rotated_image  # Fixed return statement
+
+def scale_image(image, scale_x, scale_y):
+    # Use 'fx' and 'fy' for scaling factors in the resize function
+    scaled_image = cv2.resize(image, None, fx=scale_x, fy=scale_y, interpolation=cv2.INTER_LINEAR)
+    return scaled_image
+
+def main():
+    image_path = input("Enter the image path: ")
+    image = load_image(image_path)
+    
+    tx = int(input("Enter the Translation in x-direction: "))
+    ty = int(input("Enter the Translation in y-direction: "))
+    angle = float(input("Enter the Rotation angle (degrees): "))
+    scale_x = float(input("Enter the Scaling factor for x: "))
+    scale_y = float(input("Enter the Scaling factor for y: "))
+    
+    translated = translate_image(image, tx, ty)
+    rotated = rotate_image(image, angle)
+    scaled = scale_image(image, scale_x, scale_y)
+    
+    cv2.imshow('Original Image', image)
+    cv2.imshow('Translated Image', translated)
+    cv2.imshow('Rotated Image', rotated)
+    cv2.imshow('Scaled Image', scaled)
+    
+    save_option = input('Do you want to save the transformed image? (yes/no): ').strip().lower()  # Fixed issue here
+    
+    if save_option == 'yes':
+        cv2.imwrite("translated_image.jpg", translated)
+        cv2.imwrite("rotated_image.jpg", rotated)
+        cv2.imwrite("scaled_image.jpg", scaled)
+        print("Images saved successfully")
+        
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+if __name__ == "__main__":
+    main()
